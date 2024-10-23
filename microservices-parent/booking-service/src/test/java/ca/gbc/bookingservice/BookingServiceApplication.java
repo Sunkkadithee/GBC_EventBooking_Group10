@@ -1,13 +1,13 @@
-package ca.gbc.microservicesparent;
+package ca.gbc.bookingservice;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class MicroservicesParentApplication {
+public class BookingServiceApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(MicroservicesParentApplication.class, args);
+        SpringApplication.run(BookingServiceApplication.class, args);
     }
 
 }
