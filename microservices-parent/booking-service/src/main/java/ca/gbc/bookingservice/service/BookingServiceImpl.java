@@ -29,7 +29,7 @@ public class BookingServiceImpl implements BookingService {
         // Check if room is available for the requested time slot
         if (!isRoomAvailable(bookingRequest.roomId(), bookingRequest.startTime(), bookingRequest.endTime())) {
             log.warn("Room {} is already booked for the selected time slot.", bookingRequest.roomId());
-            throw new IllegalArgumentException("Booking not available for the selected time slot.");
+            throw new IllegalArgumentException("Room " + bookingRequest.roomId() + " is not available for booking.");
         }
 
         Booking booking = Booking.builder()
@@ -41,10 +41,9 @@ public class BookingServiceImpl implements BookingService {
                 .build();
 
         bookingRepository.save(booking);
-        log.info("Booking {} created successfully", booking.getId());
+        log.info("Booking {} created successfully", booking.getUserId()); // Updated here
 
         return new BookingResponse(
-                booking.getId(),
                 booking.getUserId(),
                 booking.getRoomId(),
                 booking.getStartTime(),
@@ -62,7 +61,6 @@ public class BookingServiceImpl implements BookingService {
 
     private BookingResponse mapToBookingResponse(Booking booking) {
         return new BookingResponse(
-                booking.getId(),
                 booking.getUserId(),
                 booking.getRoomId(),
                 booking.getStartTime(),
@@ -76,7 +74,7 @@ public class BookingServiceImpl implements BookingService {
         log.debug("Updating booking with id {}", id);
 
         Query query = new Query();
-        query.addCriteria(Criteria.where("id").is(id)); // This should match your Booking model's ID field
+        query.addCriteria(Criteria.where("userId").is(id)); // Match by userId or change to a unique ID field if necessary
         Booking booking = mongoTemplate.findOne(query, Booking.class);
 
         if (booking != null) {
@@ -84,7 +82,7 @@ public class BookingServiceImpl implements BookingService {
             if (!isRoomAvailable(bookingRequest.roomId(),
                     bookingRequest.startTime(),
                     bookingRequest.endTime())) {
-                throw new IllegalArgumentException("Room is already booked for the updated time slot.");
+                throw new IllegalArgumentException("Room " + bookingRequest.roomId() + " is already booked for the updated time slot.");
             }
 
             booking.setUserId(bookingRequest.userId());
@@ -93,13 +91,11 @@ public class BookingServiceImpl implements BookingService {
             booking.setEndTime(bookingRequest.endTime());
             booking.setPurpose(bookingRequest.purpose());
 
-
-            return bookingRepository.save(booking).getId();
+            return bookingRepository.save(booking).getUserId();
         }
 
         return id; // Return the ID if booking was not found
     }
-
 
     @Override
     public void deleteBooking(String id) {
@@ -111,7 +107,7 @@ public class BookingServiceImpl implements BookingService {
     public boolean isRoomAvailable(String roomId, LocalDateTime startTime, LocalDateTime endTime) {
         log.debug("Checking availability for room {} between {} and {}", roomId, startTime, endTime);
 
-        // Define query to find overlapping booking
+        // Define query to find overlapping bookings
         Query query = new Query();
         query.addCriteria(Criteria.where("roomId").is(roomId)
                 .andOperator(

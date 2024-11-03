@@ -8,11 +8,9 @@ import java.util.List;
 
 public interface BookingService {
     BookingResponse createBooking(BookingRequest bookingRequest);
-
     List<BookingResponse> getAllBooking();
-    String updateBooking(String id, BookingRequest bookingRequest);// Update an existing booking
-    void deleteBooking(String id);// Delete a booking by ID
-
-    // Check for double-booking based on room and time slot
+    String updateBooking(String id, BookingRequest bookingRequest);
+    void deleteBooking(String id);
+    //check room
     boolean isRoomAvailable(String roomId, LocalDateTime startTime, LocalDateTime endTime);
 }
