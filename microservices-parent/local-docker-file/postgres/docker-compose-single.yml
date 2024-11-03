@@ -1,4 +1,4 @@
-## docker-compose -p postgres-assigment -f docker-compose-single.yml up -d
+## docker-compose -p posrgres-assignment -f docker-compose-single.yml up -d
 
 version: '3.9'
 
@@ -7,8 +7,8 @@ services:
   postgres:
     image: postgres
     ports:
-      - "5433:5432"
-    container_name: postgres-single-assignment
+      - "5436:5432"
+    container_name: postgres-room
     environment:
       - POSTGRES_USER=admin
       - POSTGRES_PASSWORD=password
@@ -19,8 +19,8 @@ services:
   pgadmin:
     image: dpage/pgadmin4
     ports:
-      - "8888:80"
-    container_name: pgadmin-single-assignment
+      - "8889:80"
+    container_name: pgadmin-room
     environment:
       - PGADMIN_DEFAULT_EMAIL=user@domain.ca
       - PGADMIN_DEFAULT_PASSWORD=password
