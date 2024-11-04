@@ -2,14 +2,13 @@ package ca.gbc.bookingservice.service;
 
 import ca.gbc.bookingservice.dto.BookingRequest;
 import ca.gbc.bookingservice.dto.BookingResponse;
+import ca.gbc.bookingservice.client.RoomServiceClient; // Import RoomServiceClient
 import ca.gbc.bookingservice.model.Booking;
 import ca.gbc.bookingservice.repository.BookingRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
+import org.springframework.data.mongodb.core.MongoTemplate;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -21,17 +20,19 @@ public class BookingServiceImpl implements BookingService {
 
     private final BookingRepository bookingRepository;
     private final MongoTemplate mongoTemplate;
+    private final RoomServiceClient roomServiceClient; // Inject RoomServiceClient
 
     @Override
     public BookingResponse createBooking(BookingRequest bookingRequest) {
-        log.debug("Attempting to create a booking: {}", bookingRequest.userId());
+        log.debug("Attempting to create a booking for user: {}", bookingRequest.userId());
 
-        // Check if room is available for the requested time slot
-        if (!isRoomAvailable(bookingRequest.roomId(), bookingRequest.startTime(), bookingRequest.endTime())) {
-            log.warn("Room {} is already booked for the selected time slot.", bookingRequest.roomId());
+        // Check if the room is available from RoomService
+        if (!roomServiceClient.isRoomAvailable(bookingRequest.roomId())) {
+            log.warn("Room {} is not available for booking.", bookingRequest.roomId());
             throw new IllegalArgumentException("Room " + bookingRequest.roomId() + " is not available for booking.");
         }
 
+        // Create Booking entity
         Booking booking = Booking.builder()
                 .userId(bookingRequest.userId())
                 .roomId(bookingRequest.roomId())
@@ -40,81 +41,56 @@ public class BookingServiceImpl implements BookingService {
                 .purpose(bookingRequest.purpose())
                 .build();
 
-        bookingRepository.save(booking);
-        log.info("Booking {} created successfully", booking.getUserId()); // Updated here
-
-        return new BookingResponse(
-                booking.getUserId(),
-                booking.getRoomId(),
-                booking.getStartTime(),
-                booking.getEndTime(),
-                booking.getPurpose());
+        // Save the booking
+        Booking savedBooking = bookingRepository.save(booking);
+        return new BookingResponse(savedBooking.getId(), savedBooking.getUserId(), savedBooking.getRoomId(),
+                savedBooking.getStartTime(), savedBooking.getEndTime(), savedBooking.getPurpose());
     }
 
     @Override
     public List<BookingResponse> getAllBooking() {
-        log.debug("Fetching all booking");
-        List<Booking> bookings = bookingRepository.findAll();
-
-        return bookings.stream().map(this::mapToBookingResponse).toList();
-    }
-
-    private BookingResponse mapToBookingResponse(Booking booking) {
-        return new BookingResponse(
-                booking.getUserId(),
-                booking.getRoomId(),
-                booking.getStartTime(),
-                booking.getEndTime(),
-                booking.getPurpose()
-        );
+        log.debug("Fetching all bookings.");
+        return bookingRepository.findAll().stream()
+                .map(booking -> new BookingResponse(booking.getId(), booking.getUserId(), booking.getRoomId(),
+                        booking.getStartTime(), booking.getEndTime(), booking.getPurpose()))
+                .toList();
     }
 
     @Override
-    public String updateBooking(String id, BookingRequest bookingRequest) {
-        log.debug("Updating booking with id {}", id);
+    public String updateBooking(String bookingId, BookingRequest bookingRequest) {
+        log.debug("Updating booking with id: {}", bookingId);
 
-        Query query = new Query();
-        query.addCriteria(Criteria.where("userId").is(id)); // Match by userId or change to a unique ID field if necessary
-        Booking booking = mongoTemplate.findOne(query, Booking.class);
+        // Check if the booking exists
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new IllegalArgumentException("Booking not found with id: " + bookingId));
 
-        if (booking != null) {
-            // Ensure room availability for the updated time slot
-            if (!isRoomAvailable(bookingRequest.roomId(),
-                    bookingRequest.startTime(),
-                    bookingRequest.endTime())) {
-                throw new IllegalArgumentException("Room " + bookingRequest.roomId() + " is already booked for the updated time slot.");
-            }
-
-            booking.setUserId(bookingRequest.userId());
-            booking.setRoomId(bookingRequest.roomId());
-            booking.setStartTime(bookingRequest.startTime());
-            booking.setEndTime(bookingRequest.endTime());
-            booking.setPurpose(bookingRequest.purpose());
-
-            return bookingRepository.save(booking).getUserId();
+        // Check if the room is available from RoomService
+        if (!roomServiceClient.isRoomAvailable(bookingRequest.roomId())) {
+            log.warn("Room {} is not available for booking.", bookingRequest.roomId());
+            throw new IllegalArgumentException("Room " + bookingRequest.roomId() + " is not available for booking.");
         }
 
-        return id; // Return the ID if booking was not found
+        // Update the booking fields
+        booking.setUserId(bookingRequest.userId());
+        booking.setRoomId(bookingRequest.roomId());
+        booking.setStartTime(bookingRequest.startTime());
+        booking.setEndTime(bookingRequest.endTime());
+        booking.setPurpose(bookingRequest.purpose());
+
+        // Save updated booking
+        bookingRepository.save(booking);
+        return booking.getId();
     }
 
     @Override
-    public void deleteBooking(String id) {
-        log.debug("Deleting booking with id {}", id);
-        bookingRepository.deleteById(id);
+    public void deleteBooking(String bookingId) {
+        log.debug("Deleting booking with id: {}", bookingId);
+        bookingRepository.deleteById(bookingId);
     }
 
     @Override
-    public boolean isRoomAvailable(String roomId, LocalDateTime startTime, LocalDateTime endTime) {
-        log.debug("Checking availability for room {} between {} and {}", roomId, startTime, endTime);
-
-        // Define query to find overlapping bookings
-        Query query = new Query();
-        query.addCriteria(Criteria.where("roomId").is(roomId)
-                .andOperator(
-                        Criteria.where("endTime").gt(startTime),
-                        Criteria.where("startTime").lt(endTime)
-                ));
-
-        return mongoTemplate.find(query, Booking.class).isEmpty();
+    public boolean isRoomAvailable(Long roomId, LocalDateTime startTime, LocalDateTime endTime) {
+        // Logic to check if the room is available for the given time period
+        return roomServiceClient.isRoomAvailable(roomId); // Assuming roomId is now of type Long
     }
 }

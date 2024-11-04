@@ -1,7 +1,7 @@
 #----------------
 #  Build Stage
 #----------------
-FROM gradle:8-jdk22-alpine AS builder
+FROM gradle:8-jdk23-alpine AS builder
 
 # Copy the project files to the Gradle user's home directory
 COPY --chown=gradle:gradle . /home/gradle/src
@@ -15,7 +15,7 @@ RUN gradle build -x test
 #------------------
 #   Package STAGE
 #------------------
-FROM openjdk:22-jdk
+FROM openjdk:23-jdk
 
 # Create the application directory
 RUN mkdir /app
@@ -28,7 +28,7 @@ ENV MONGO_DB_USERNAME=admin \
     MONGO_DB_PASSWORD=password
 
 # Expose the application port
-EXPOSE 8084
+EXPOSE 8086
 
 # Define the entry point for the container
 ENTRYPOINT ["java", "-jar", "/app/booking-service.jar"]

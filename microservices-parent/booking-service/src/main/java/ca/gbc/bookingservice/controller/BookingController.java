@@ -23,12 +23,9 @@ public class BookingController {
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<BookingResponse> createBooking(@RequestBody BookingRequest bookingRequest) {
         BookingResponse createdBooking = bookingService.createBooking(bookingRequest);
-
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Location", "/api/booking/" + createdBooking.roomId());
-
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
+        headers.add("Location", "/api/booking/" + createdBooking.id());
+        return ResponseEntity.status(HttpStatus.CREATED)
                 .headers(headers)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(createdBooking);
@@ -36,32 +33,22 @@ public class BookingController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<BookingResponse> getAllBooking() {
+    public List<BookingResponse> getAllBookings() {
         return bookingService.getAllBooking();
     }
 
-    @RestControllerAdvice
-    public class GlobalExceptionHandler {
+    @PutMapping("/{bookingId}")
+    public ResponseEntity<?> updateBooking(@PathVariable("bookingId") String bookingId,
+                                           @RequestBody BookingRequest bookingRequest) {
+        String updatedBookingId = bookingService.updateBooking(bookingId, bookingRequest);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Location", "/api/booking/" + updatedBookingId);
+        return new ResponseEntity<>(headers, HttpStatus.NO_CONTENT);
+    }
 
-        @ExceptionHandler(IllegalArgumentException.class)
-        public ResponseEntity<String> handleIllegalArgument(IllegalArgumentException ex) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
-        }
-
-        @PutMapping("/{bookingId}")
-        public ResponseEntity<?> updateBooking(@PathVariable("bookingId") String bookingId,
-                                               @RequestBody BookingRequest bookingRequest) {
-            String updatedBookingId = bookingService.updateBooking(bookingId, bookingRequest);
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.add("Location", "/api/booking/" + updatedBookingId);
-            return new ResponseEntity<>(headers, HttpStatus.NO_CONTENT);
-        }
-
-        @DeleteMapping("/{bookingId}")
-        public ResponseEntity<?> deleteBooking(@PathVariable("bookingId") String bookingId) {
-            bookingService.deleteBooking(bookingId);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
+    @DeleteMapping("/{bookingId}")
+    public ResponseEntity<?> deleteBooking(@PathVariable("bookingId") String bookingId) {
+        bookingService.deleteBooking(bookingId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

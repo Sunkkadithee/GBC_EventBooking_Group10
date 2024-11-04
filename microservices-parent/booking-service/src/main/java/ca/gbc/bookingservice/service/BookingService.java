@@ -9,8 +9,9 @@ import java.util.List;
 public interface BookingService {
     BookingResponse createBooking(BookingRequest bookingRequest);
     List<BookingResponse> getAllBooking();
-    String updateBooking(String id, BookingRequest bookingRequest);
-    void deleteBooking(String id);
-    //check room
-    boolean isRoomAvailable(String roomId, LocalDateTime startTime, LocalDateTime endTime);
+    String updateBooking(String bookingId, BookingRequest bookingRequest);
+    void deleteBooking(String bookingId);
+
+    // Update the method signature here
+    boolean isRoomAvailable(Long roomId, LocalDateTime startTime, LocalDateTime endTime);
 }

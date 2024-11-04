@@ -14,7 +14,7 @@ services:
   booking-service:
     image: booking-service
     ports:
-      - "8085:8084"
+      - "8086:8084"
     build:
       context: ./booking-service        #The directory where the Dockerfile resides
       dockerfile: ./Dockerfile          #Specify the Dockerfile for use to build image
@@ -29,7 +29,7 @@ services:
   mongodb:
     image: mongo:latest
     ports:
-      - "27018:27017"
+      - "27019:27017"
     environment:
       - MONGO_INITDB_ROOT_USERNAME=admin
       - MONGO_INITDB_ROOT_PASSWORD=password

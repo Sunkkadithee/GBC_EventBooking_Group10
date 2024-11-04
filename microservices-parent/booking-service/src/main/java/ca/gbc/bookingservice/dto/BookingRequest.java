@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 
 public record BookingRequest(
         String userId,
-        String roomId,
+        Long roomId, // Change to Long
         LocalDateTime startTime,
         LocalDateTime endTime,
         String purpose
