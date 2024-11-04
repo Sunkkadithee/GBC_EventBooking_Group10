@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "users")
+@Table(name = "t_users")
 @Getter
 @Setter
 @AllArgsConstructor
@@ -24,7 +24,7 @@ public class User {
     private String role;
 
     @Enumerated(EnumType.STRING)
-    private UserType userType;
+    private UserType userType; // Enum for user types
 
     public enum UserType {
         STUDENT,

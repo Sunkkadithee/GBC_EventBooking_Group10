@@ -6,9 +6,9 @@ services:
 
   postgres:
     image: postgres
+    container_name: postgres-room
     ports:
       - "5435:5432"
-    container_name: postgres-room
     environment:
       - POSTGRES_USER=admin
       - POSTGRES_PASSWORD=password
@@ -18,9 +18,9 @@ services:
 
   pgadmin:
     image: dpage/pgadmin4
+    container_name: pgadmin-room
     ports:
       - "8887:80"
-    container_name: pgadmin-room
     environment:
       - PGADMIN_DEFAULT_EMAIL=user@domain.ca
       - PGADMIN_DEFAULT_PASSWORD=password

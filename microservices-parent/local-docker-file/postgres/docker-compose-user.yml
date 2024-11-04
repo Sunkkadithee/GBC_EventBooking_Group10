@@ -16,17 +16,6 @@ services:
       - ./data/user:/var/lib/postgresql/data
       - ./init/user/init.sql:/docker-entrypoint-initdb.d/init.sql
 
-  # postgres:
-  #   image: postgres
-  #   ports:
-  #     - "5433:5432"
-  #   container_name: postgres-single
-  #   environment:
-  #     - POSTGRES_USER=admin
-  #     - POSTGRES_PASSWORD=password
-  #   volumes:
-  #     - ./data/order:/var/lib/postgresql/data
-  #     - ./init/order/init.sql:/docker-entrypoint-initdb.d/init.sql
 
   pgadmin:
     image: dpage/pgadmin4

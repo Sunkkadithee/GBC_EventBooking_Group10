@@ -24,7 +24,7 @@ public class UserServiceImpl implements UserService {
                 .name(userRequest.name())
                 .email(userRequest.email())
                 .role(userRequest.role())
-                .userType(User.UserType.valueOf(userRequest.userType().toUpperCase()))
+                .userType(userRequest.userType())
                 .build();
 
         userRepository.save(user);
@@ -39,7 +39,7 @@ public class UserServiceImpl implements UserService {
         user.setName(userRequest.name());
         user.setEmail(userRequest.email());
         user.setRole(userRequest.role());
-        user.setUserType(User.UserType.valueOf(userRequest.userType().toUpperCase()));
+        user.setUserType(userRequest.userType());
 
         userRepository.save(user);
     }
