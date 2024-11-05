@@ -12,6 +12,5 @@ public interface BookingService {
     String updateBooking(String bookingId, BookingRequest bookingRequest);
     void deleteBooking(String bookingId);
 
-    // Update the method signature here
     boolean isRoomAvailable(Long roomId, LocalDateTime startTime, LocalDateTime endTime);
 }

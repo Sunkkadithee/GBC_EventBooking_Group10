@@ -25,7 +25,9 @@ public class BookingController {
         BookingResponse createdBooking = bookingService.createBooking(bookingRequest);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Location", "/api/booking/" + createdBooking.id());
-        return ResponseEntity.status(HttpStatus.CREATED)
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
                 .headers(headers)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(createdBooking);
@@ -33,7 +35,7 @@ public class BookingController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<BookingResponse> getAllBookings() {
+    public List<BookingResponse> getAllBooking() {
         return bookingService.getAllBooking();
     }
 
@@ -43,6 +45,7 @@ public class BookingController {
         String updatedBookingId = bookingService.updateBooking(bookingId, bookingRequest);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Location", "/api/booking/" + updatedBookingId);
+
         return new ResponseEntity<>(headers, HttpStatus.NO_CONTENT);
     }
 
