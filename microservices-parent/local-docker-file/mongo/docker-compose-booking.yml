@@ -9,6 +9,8 @@
 
 version: '3.9'
 
+
+
 services:
 
   booking-service:
@@ -36,7 +38,7 @@ services:
     volumes:
       - ./data/mongo/bookings:/data/db  # the database will oersist data here on the host machine
       - ./init/mongo/docker-entrypoint-initdb.d/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro # Initialize MongoDB with data from this script.
-    container_name: mongodb_assigment
+    container_name: mongodb_booking
     #restart: unless-stopped
     #command: mongod --auth
     networks:
@@ -50,7 +52,7 @@ services:
       - ME_CONFIG_MONGODB_ADMINUSERNAME=admin
       - ME_CONFIG_MONGODB_ADMINPASSWORD=password
       - ME_CONFIG_MONGODB_SERVER=mongodb
-    container_name: mongo-express_assigment
+    container_name: mongo-express_booking
     depends_on:
       - mongodb
     networks:

@@ -1,96 +1,56 @@
 package ca.gbc.bookingservice.service;
 
+import ca.gbc.bookingservice.client.RoomClient;
 import ca.gbc.bookingservice.dto.BookingRequest;
-import ca.gbc.bookingservice.dto.BookingResponse;
 import ca.gbc.bookingservice.model.Booking;
 import ca.gbc.bookingservice.repository.BookingRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.List;
+import java.util.UUID;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@Transactional
 public class BookingServiceImpl implements BookingService {
 
     private final BookingRepository bookingRepository;
-    private final MongoTemplate mongoTemplate;
+    private final RoomClient roomClient;
 
     @Override
-    public BookingResponse createBooking(BookingRequest bookingRequest) {
-        log.debug("Attempting to create a booking for user: {}", bookingRequest.userId());
+    public void createBooking(BookingRequest bookingRequest) {
+        try {
+            // Convert roomId to String before passing to RoomClient
+            String roomId = String.valueOf(bookingRequest.roomId());
 
-        // Check room availability
-        if (!isRoomAvailable(Long.parseLong(bookingRequest.roomId()), bookingRequest.startTime(), bookingRequest.endTime())) {
-            log.warn("Room {} is not available for the specified time period.", bookingRequest.roomId());
-            throw new IllegalArgumentException("Room " + bookingRequest.roomId() + " is not available for the specified time.");
+            // Fetch room availability from RoomService using the roomId from bookingRequest
+            boolean isAvailable = roomClient.isAvailable(roomId, true); // Availability check
+
+            // If room is not available, throw an exception
+            if (!isAvailable) {
+                throw new RuntimeException("Room " + roomId + " is not available.");
+            }
+
+            // Create a booking record
+            Booking booking = Booking.builder()
+                    .id(UUID.randomUUID().toString())
+                    .userId(bookingRequest.userId())
+                    .roomId(Long.valueOf(roomId))
+                    .startTime(bookingRequest.startTime())
+                    .endTime(bookingRequest.endTime())
+                    .purpose(bookingRequest.purpose())
+                    .build();
+
+            // Save the booking to the repository
+            bookingRepository.save(booking);
+
+            log.info("Booking created successfully for user: {}", bookingRequest.userId());
+        } catch (Exception e) {
+            log.error("Error occurred while creating booking: ", e);
+            throw new RuntimeException("Failed to create booking: " + e.getMessage(), e);
         }
-
-        // Create and save booking
-        Booking booking = Booking.builder()
-                .userId(bookingRequest.userId())
-                .roomId(bookingRequest.roomId())
-                .startTime(bookingRequest.startTime())
-                .endTime(bookingRequest.endTime())
-                .purpose(bookingRequest.purpose())
-                .build();
-
-        Booking savedBooking = bookingRepository.save(booking);
-        return new BookingResponse(savedBooking.getId(), savedBooking.getUserId(), savedBooking.getRoomId(),
-                savedBooking.getStartTime(), savedBooking.getEndTime(), savedBooking.getPurpose());
-    }
-
-    @Override
-    public List<BookingResponse> getAllBooking() {
-        log.debug("Fetching all bookings.");
-        return bookingRepository.findAll().stream()
-                .map(booking -> new BookingResponse(booking.getId(), booking.getUserId(), booking.getRoomId(),
-                        booking.getStartTime(), booking.getEndTime(), booking.getPurpose()))
-                .toList();
-    }
-
-    @Override
-    public String updateBooking(String bookingId, BookingRequest bookingRequest) {
-        log.debug("Updating booking with id: {}", bookingId);
-
-        Booking booking = bookingRepository.findById(bookingId)
-                .orElseThrow(() -> new IllegalArgumentException("Booking not found with id: " + bookingId));
-
-        if (!isRoomAvailable(Long.parseLong(bookingRequest.roomId()), bookingRequest.startTime(), bookingRequest.endTime())) {
-            log.warn("Room {} is not available for the specified time period.", bookingRequest.roomId());
-            throw new IllegalArgumentException("Room " + bookingRequest.roomId() + " is not available for the specified time.");
-        }
-
-        booking.setUserId(bookingRequest.userId());
-        booking.setRoomId(bookingRequest.roomId());
-        booking.setStartTime(bookingRequest.startTime());
-        booking.setEndTime(bookingRequest.endTime());
-        booking.setPurpose(bookingRequest.purpose());
-
-        bookingRepository.save(booking);
-        return booking.getId();
-    }
-
-    @Override
-    public void deleteBooking(String bookingId) {
-        log.debug("Deleting booking with id: {}", bookingId);
-        bookingRepository.deleteById(bookingId);
-    }
-
-    @Override
-    public boolean isRoomAvailable(Long roomId, LocalDateTime startTime, LocalDateTime endTime) {
-        Query query = new Query();
-        query.addCriteria(Criteria.where("roomId").is(roomId)
-                .andOperator(
-                        Criteria.where("endTime").gt(startTime),
-                        Criteria.where("startTime").lt(endTime)
-                ));
-        return mongoTemplate.find(query, Booking.class).isEmpty();
     }
 }

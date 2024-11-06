@@ -1,5 +1,8 @@
 package ca.gbc.bookingservice;
 
+import ca.gbc.bookingservice.client.RoomClient;
+import ca.gbc.bookingservice.stub.RoomClientStub;
+import com.github.tomakehurst.wiremock.client.WireMock;
 import io.restassured.RestAssured;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
@@ -7,30 +10,24 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
-import org.springframework.util.PathMatcher;
-import org.testcontainers.containers.MongoDBContainer;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class BookingServiceApplicationTests {
-
-    @ServiceConnection
-    static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:latest");
 
     @LocalServerPort
     private Integer port;
 
     @Autowired
-    private PathMatcher mvcPathMatcher;
+    private RoomClient roomClient;
 
     @BeforeEach
     void setup() {
+        // Set up WireMock for stubbing RoomClient requests
+        WireMock.configureFor("localhost", 8089); // Ensure WireMock is running on a different port, here 8089
+        RoomClientStub.stubRoomAvailability("roomA", "2024-10-30T10:00:00", "2024-10-30T12:00:00");
+
         RestAssured.baseURI = "http://localhost";
         RestAssured.port = port;
-    }
-
-    static {
-        mongoDBContainer.start();
     }
 
     // Helper method to create a booking for test purposes

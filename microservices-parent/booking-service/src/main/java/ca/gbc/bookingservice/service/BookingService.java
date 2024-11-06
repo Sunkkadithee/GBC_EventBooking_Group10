@@ -7,10 +7,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface BookingService {
-    BookingResponse createBooking(BookingRequest bookingRequest);
-    List<BookingResponse> getAllBooking();
-    String updateBooking(String bookingId, BookingRequest bookingRequest);
-    void deleteBooking(String bookingId);
+   void createBooking(BookingRequest bookingRequest);
+    //List<BookingResponse> getAllBooking();
+   // void updateBooking(String bookingId, BookingRequest bookingRequest);
+    //void deleteBooking(String bookingId);
 
-    boolean isRoomAvailable(Long roomId, LocalDateTime startTime, LocalDateTime endTime);
+
 }
