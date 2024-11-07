@@ -1,66 +1,145 @@
 package ca.gbc.roomservice.service;
 
 import ca.gbc.roomservice.dto.RoomRequest;
+import ca.gbc.roomservice.dto.RoomResponse;
 import ca.gbc.roomservice.model.Room;
 import ca.gbc.roomservice.repository.RoomRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class RoomServiceImpl implements RoomService {
 
+
+
+public class RoomServiceImpl implements RoomService{
+
+    @Autowired
     private final RoomRepository roomRepository;
 
+
     @Override
-    public String addRoom(RoomRequest roomRequest) {
-        // Check if the room with the same name already exists
-        if (roomRepository.existsByRoomName(roomRequest.roomName())) {
-            return "Room with name " + roomRequest.roomName() + " already exists.";
+    public boolean isRoomAvailable(Long roomId) {
+        return roomRepository.existsByIdAndAvailabilityIsTrue(roomId);
+    }
+
+
+    @Override
+    public RoomResponse getRoomById(Long roomId) {
+        // Assume there's a repository or a way to fetch the room details by ID
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new RuntimeException("Room not found"));
+
+        // Convert Room entity to RoomResponse DTO
+        return new RoomResponse(
+                room.getId(),
+                room.getRoomName(),
+                room.getCapacity(),
+                room.getFeatures(),
+                room.getPrice(),
+                room.isAvailability()
+        );
+    }
+
+
+
+    @Override
+    public boolean updateRoomAvailability(Long roomId, LocalDateTime bookingEnd) {
+        // Fetch the room by roomId
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new IllegalArgumentException("Room not found"));
+
+        // Check if the booking end time is in the past
+        if (bookingEnd.isBefore(LocalDateTime.now())) {
+            // Set the room availability to false (booked)
+            room.setAvailability(false);
+
+            // Save the updated room
+            roomRepository.save(room);
+            return true;
         }
 
-        // Build the Room entity from the RoomRequest DTO
+        // Return false if the booking end is not in the past
+        return false;
+    }
+
+
+    @Override
+    public RoomResponse checkRoomAvailability(RoomRequest roomRequest) {
+        log.debug("Checking room availability{}", roomRequest.roomName());
+
         Room room = Room.builder()
                 .roomName(roomRequest.roomName())
+                .features(roomRequest.features())
                 .capacity(roomRequest.capacity())
+                .price(roomRequest.price())
                 .availability(roomRequest.availability())
-                .feature(roomRequest.feature())
                 .build();
 
-        // Save the room to the repository
         roomRepository.save(room);
-        log.info("Room added successfully: {}", room);
-        return "Room added successfully"; // Return success message
+
+        log.debug("Room availability checked successfully");
+        return new RoomResponse(
+                room.getId(),
+                room.getRoomName(),
+                room.getCapacity(),
+                room.getFeatures(),
+                room.getPrice(),
+                room.isAvailability()
+        );
+
     }
 
-    @Override
-    public void updateRoom(Long id, RoomRequest roomRequest) {
-        // Fetch the existing room
-        Room existingRoom = roomRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Room not found with id: " + id));
+    public RoomResponse createRoomAdmin(RoomRequest roomRequest) {
+        log.debug("Creating room admin {}", roomRequest.roomName());
+        Room room = Room.builder()
+                .roomName(roomRequest.roomName())
+                .features(roomRequest.features())
+                .capacity(roomRequest.capacity())
+                .price(roomRequest.price())
+                .availability(roomRequest.availability())
+                .build();
 
-        // Update the fields of the existing room
-        existingRoom.setRoomName(roomRequest.roomName());
-        existingRoom.setCapacity(roomRequest.capacity());
-        existingRoom.setAvailability(roomRequest.availability());
-        existingRoom.setFeature(roomRequest.feature());
+        roomRepository.save(room);
+        log.debug("Room created successfully by admin");
+        return new RoomResponse(
+                room.getId(),
+                room.getRoomName(),
+                room.getCapacity(),
+                room.getFeatures(),
+                room.getPrice(),
+                room.isAvailability()
 
-        // Save the updated room
-        roomRepository.save(existingRoom);
-        log.info("Room updated successfully: {}", existingRoom);
+        );
     }
 
-    @Override
-    public void deleteRoom(Long id) {
-        // Check if room exists before deletion
-        if (!roomRepository.existsById(id)) {
-            throw new RuntimeException("Room not found with id: " + id);
-        }
-        roomRepository.deleteById(id);
-        log.info("Room deleted successfully with id: {}", id);
+    public List<RoomResponse>
+    getAllRooms() {
+        log.debug("Getting all rooms");
+        List<Room> roomResponses = roomRepository.findAll();
+
+        return roomResponses.stream().map(this::mapToRoomResponse).toList();
+
+    }
+
+
+    private RoomResponse mapToRoomResponse(Room room) {
+        return new RoomResponse(
+                room.getId(),
+                room.getRoomName(),
+                room.getCapacity(),
+                room.getFeatures(),
+                room.getPrice(),
+                room.isAvailability()
+        );
     }
 }

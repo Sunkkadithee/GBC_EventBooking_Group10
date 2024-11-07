@@ -28,7 +28,7 @@ ENV MONGO_DB_USERNAME=admin \
     MONGO_DB_PASSWORD=password
 
 # Expose the application port
-EXPOSE 8081
+EXPOSE 8084
 
 # Define the entry point for the container
 ENTRYPOINT ["java", "-jar", "/app/booking-service.jar"]

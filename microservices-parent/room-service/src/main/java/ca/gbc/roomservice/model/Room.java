@@ -4,6 +4,8 @@ package ca.gbc.roomservice.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(name = "t_rooms")
 @Getter
@@ -15,9 +17,10 @@ public class Room {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long Id;
+    private Long id;
     private String roomName;
     private Integer capacity;
-    private String feature;
-    private Boolean availability;
+    private String features; // e.g. projector, whiteboard
+    private BigDecimal price;
+    private boolean availability; // true or false
 }

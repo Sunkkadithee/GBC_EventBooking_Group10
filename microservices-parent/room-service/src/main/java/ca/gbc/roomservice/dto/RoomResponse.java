@@ -1,10 +1,13 @@
 package ca.gbc.roomservice.dto;
 
+import java.math.BigDecimal;
+
 public record RoomResponse(
-        Long  Id,
+        Long id,
         String roomName,
         Integer capacity,
-        String feature,
-        Boolean availability
-) { }
-
+        String features,
+        BigDecimal price,
+        boolean availability
+) {
+}

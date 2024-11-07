@@ -4,10 +4,15 @@ import java.time.LocalDateTime;
 
 public record BookingResponse(
         String id,
-        String userId,
         Long roomId,
-        LocalDateTime startTime,
-        LocalDateTime endTime,
-        String purpose
-) {
+        String bookHolderName,
+
+        Integer numberOfPeople,
+
+        LocalDateTime bookingStart,
+
+        LocalDateTime bookingEnd,
+
+        String status) {
+
 }
