@@ -3,7 +3,7 @@
 #     - This command will start the containers in detached mode (-d) without rebuilding the image (if they exist)
 #
 # 2. docker-compose -p mongodb-event -f docker-compose-event.yml up -d --build
-#       - this command fores the rebuild of image, even if they already exist, before starting them.
+#       - this command forces the rebuild of image, even if they already exist, before starting them.
 #
 #-----------------------------------------------------------------------------------------------------------------------
 
@@ -11,18 +11,16 @@ version: '3.9'
 
 services:
 
-  booking-service:
-    image: event-service
-    ports:
-      - "8089:8084"
-    build:
-      context: ./event-service        #The directory where the Dockerfile resides
-      dockerfile: ./Dockerfile          #Specify the Dockerfile for use to build image
-    container_name: event-service
+  mongo-db:
+    image: postgres:latest
     environment:
-      SPRING_PROFILES_ACTIVE: docker
-    depends_on:
-      - mongodb
+      - POSTGRES_DB=event-db
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=password
+    ports:
+      - "5432:5432"
+    volumes:
+      - event-db-data:/var/lib/postgresql/data
     networks:
       - spring
 
@@ -34,38 +32,10 @@ services:
       - MONGO_INITDB_ROOT_USERNAME=admin
       - MONGO_INITDB_ROOT_PASSWORD=password
     volumes:
-      - ./data/mongo/event:/data/db  # the database will oersist data here on the host machine
-      - ./init/mongo/docker-entrypoint-initdb.d/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro # Initialize MongoDB with data from this script.
+      - ./data/mongo/event:/data/db  # Data persists here on the host machine
+      - ./init/mongo/docker-entrypoint-initdb.d/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro  # Initialize MongoDB with a script
     container_name: mongodb_event
-    #restart: unless-stopped
-    #command: mongod --auth
     networks:
       - spring
 
   mongo-express:
-    image: mongo-express
-    ports:
-      - "8083:8081"
-    environment:
-      - ME_CONFIG_MONGODB_ADMINUSERNAME=admin
-      - ME_CONFIG_MONGODB_ADMINPASSWORD=password
-      - ME_CONFIG_MONGODB_SERVER=mongodb
-    container_name: mongo-express_event
-    depends_on:
-      - mongodb
-    networks:
-      - spring
-
-
-#optional volumes section persisting data
-volumes:
-  mongo-db:
-    driver: local
-
-networks:
-  spring:
-    driver: bridge
-
-
-
-

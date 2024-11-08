@@ -43,6 +43,24 @@ services:
       networks:
         - spring
 
+  event-service:
+    image: event-service
+    ports:
+      - "8089:8084"
+    build:
+      context: ./event-service
+      dockerfile: ./Dockerfile
+    container_name: event-service
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    depends_on:
+      - mongodb
+    networks:
+      - spring
+
+
+
+
   postgres:
     image: postgres
     container_name: postgres-room

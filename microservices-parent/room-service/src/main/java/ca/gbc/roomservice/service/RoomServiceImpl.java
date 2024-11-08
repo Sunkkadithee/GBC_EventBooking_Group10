@@ -26,7 +26,7 @@ public class RoomServiceImpl implements RoomService{
     @Autowired
     private final RoomRepository roomRepository;
 
-
+    // Ramtin's code
     @Override
     public boolean isRoomAvailable(Long roomId) {
         return roomRepository.existsByIdAndAvailabilityIsTrue(roomId);
@@ -49,7 +49,6 @@ public class RoomServiceImpl implements RoomService{
                 room.isAvailability()
         );
     }
-
 
 
     @Override

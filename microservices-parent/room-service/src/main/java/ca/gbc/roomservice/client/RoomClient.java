@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @FeignClient(name = "booking", url="${booking.service.url}")
 public interface RoomClient {
 
+    // Fetch the booking end time for a specific room
     @RequestMapping(method = RequestMethod.GET, value = "/api/booking/getBookingEndTime")
     LocalDateTime getBookingEndTime(@RequestParam("roomId") Long roomId);
 }

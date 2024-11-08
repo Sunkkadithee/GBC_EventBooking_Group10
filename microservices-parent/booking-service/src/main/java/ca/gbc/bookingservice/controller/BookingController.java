@@ -35,9 +35,9 @@ public class BookingController {
 
     @GetMapping("/getBookingEndTime")
     public LocalDateTime getBookingEndTime(@RequestParam("roomId") Long roomId) {
-        // Fetch the booking details using the roomId
+
         System.out.println("Received request for roomId: " + roomId);
         Booking booking = bookingService.getLatestBookingByRoomId(roomId);
-        return booking.getBookingEnd(); // Assuming the booking has an end time field
+        return booking.getEndTime();
     }
 }

@@ -17,17 +17,17 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class BookingServiceImpl implements BookingService {
+
     @Autowired
-    private final BookingRepository bookingRepository;
-    private final MongoTemplate mongoTemplate;
-    private final MongoClient mongo;
+    private final BookingRepository bookingRepository; // Booking repository
+    private final MongoTemplate mongoTemplate; // MongoDB template for queries
+    private final MongoClient mongo; // Mongo client for raw access (optional in many cases)
     @Autowired
-    private final RoomClient roomClient;
+    private final RoomClient roomClient; // Room service client (via Feign)
 
     @Override
     public void makeBooking(BookingRequest bookingRequest) {
@@ -40,18 +40,13 @@ public class BookingServiceImpl implements BookingService {
             throw new IllegalArgumentException("Room is not available for booking.");
         }
 
-        // Check if the number of people exceeds room capacity
-        if (bookingRequest.numberOfPeople() > roomResponse.capacity()) {
-            throw new IllegalArgumentException("The number of people exceeds room capacity.");
-        }
-
-        // Proceed with booking if room is available and capacity is sufficient
+        // Proceed with booking if room is available
         Booking booking = Booking.builder()
                 .roomId(bookingRequest.roomId())
-                .bookHolderName(bookingRequest.bookHolderName())
-                .numberOfPeople(bookingRequest.numberOfPeople())
-                .bookingStart(bookingRequest.bookingStart())
-                .bookingEnd(bookingRequest.bookingEnd())
+                .userName(bookingRequest.userName())
+                .startTime(bookingRequest.startTime())
+                .endTime(bookingRequest.endTime())
+                .purpose(bookingRequest.purpose())  // Added purpose here
                 .status(bookingRequest.status())
                 .build();
 
@@ -61,38 +56,34 @@ public class BookingServiceImpl implements BookingService {
         // Call RoomClient to update the availability of the room
         roomClient.updateRoomAvailabilityBasedOnBookingEnd(
                 bookingRequest.roomId(),
-                bookingRequest.bookingEnd()
+                bookingRequest.endTime()
         );
     }
 
-    //    @Override
-//    public Booking getBookingByRoomId(Long roomId) {
-//        // Query the repository to find the booking by roomId
-//        return bookingRepository.findByRoomId(roomId)
-//                .orElseThrow(() -> new RuntimeException("Booking not found for roomId: " + roomId));
-//    }
     public Booking getLatestBookingByRoomId(Long roomId) {
-        return bookingRepository.findFirstByRoomIdOrderByBookingEndDesc(roomId)
+        return bookingRepository.findFirstByRoomIdOrderByEndTimeDesc(roomId)
                 .orElseThrow(() -> new RuntimeException("Booking not found for roomId: " + roomId));
     }
 
-
-
     @Override
-    public List<BookingResponse> getAllBookings(){
+    public List<BookingResponse> getAllBookings() {
         log.debug("Getting all bookings");
         List<Booking> bookings = bookingRepository.findAll();
 
         return bookings.stream().map(this::mapToBookingResponse).toList();
-
     }
 
     private BookingResponse mapToBookingResponse(Booking booking) {
-        return new BookingResponse(booking.getId(), booking.getRoomId(), booking.getBookHolderName(),
-                booking.getNumberOfPeople(), booking.getBookingStart(), booking.getBookingEnd(),
-                booking.getStatus());
+        return new BookingResponse(
+                booking.getId(),
+                booking.getRoomId(),
+                booking.getUserName(),
+                booking.getStartTime(),
+                booking.getEndTime(),
+                booking.getPurpose(),
+                booking.getStatus()
+        );
     }
-
 
     @Override
     public String updateBooking(String id, BookingRequest bookingRequest) {
@@ -103,20 +94,24 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = mongoTemplate.findOne(query, Booking.class);
 
         if (booking != null) {
-            booking.setBookHolderName(bookingRequest.bookHolderName());
-            booking.setNumberOfPeople(bookingRequest.numberOfPeople());
-            booking.setBookingStart(bookingRequest.bookingStart());
-            booking.setBookingEnd(bookingRequest.bookingEnd());
+            booking.setUserName(bookingRequest.userName());
+            booking.setStartTime(bookingRequest.startTime());
+            booking.setEndTime(bookingRequest.endTime());
+            booking.setPurpose(bookingRequest.purpose());  // Update purpose here
             booking.setStatus(bookingRequest.status());
             return bookingRepository.save(booking).getId();
         }
         return id + " not found";
     }
 
+
+
     @Override
     public void cancelBooking(String id) {
         log.debug("Cancelling booking request {}", id);
-        bookingRepository.deleteById(id);
+
+        bookingRepository.deleteById(id); // Assuming deleteById expects String id
     }
+
 
 }

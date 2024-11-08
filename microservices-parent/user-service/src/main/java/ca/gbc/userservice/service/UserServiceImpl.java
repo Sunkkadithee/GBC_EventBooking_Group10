@@ -1,47 +1,63 @@
 package ca.gbc.userservice.service;
 
-import ca.gbc.userservice.dto.UserRequest;
 import ca.gbc.userservice.model.User;
+import ca.gbc.userservice.dto.UserRequest;
+import ca.gbc.userservice.dto.UserResponse;
 import ca.gbc.userservice.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
 
-    @Override
-    public String addUser(UserRequest userRequest) {
-        if (userRepository.existsByEmail(userRequest.email())) {
-            return "User with email " + userRequest.email() + " already exists.";
-        }
+    @Autowired
+    public UserServiceImpl(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
+    @Override
+    public UserResponse createUser(UserRequest userRequest) {
         User user = User.builder()
                 .name(userRequest.name())
                 .email(userRequest.email())
                 .role(userRequest.role())
-                .userType(userRequest.userType())
+                .userType(User.UserType.valueOf(userRequest.userType().toUpperCase()))
                 .build();
 
-        userRepository.save(user);
-        return "User added successfully";
+        User savedUser = userRepository.save(user);
+        return convertToUserResponse(savedUser);
     }
 
     @Override
-    public void updateUser(Long id, UserRequest userRequest) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+    public Optional<UserResponse> getUserById(Long id) {
+        return userRepository.findById(id).map(this::convertToUserResponse);
+    }
 
-        user.setName(userRequest.name());
-        user.setEmail(userRequest.email());
-        user.setRole(userRequest.role());
-        user.setUserType(userRequest.userType());
+    @Override
+    public List<UserResponse> getAllUsers() {
+        return userRepository.findAll().stream()
+                .map(this::convertToUserResponse)
+                .collect(Collectors.toList());
+    }
 
-        userRepository.save(user);
+    @Override
+    public UserResponse updateUser(Long id, UserRequest userRequest) {
+        User existingUser = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        existingUser.setName(userRequest.name());
+        existingUser.setEmail(userRequest.email());
+        existingUser.setRole(userRequest.role());
+        existingUser.setUserType(User.UserType.valueOf(userRequest.userType().toUpperCase()));
+
+        User updatedUser = userRepository.save(existingUser);
+        return convertToUserResponse(updatedUser);
     }
 
     @Override
@@ -50,13 +66,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getUserById(Long id) {
-        return userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+    public Optional<UserResponse> getUserByEmail(String email) {
+        return userRepository.findByEmail(email).map(this::convertToUserResponse);
     }
 
-    @Override
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    private UserResponse convertToUserResponse(User user) {
+        return new UserResponse(user.getId(), user.getName(), user.getEmail(), user.getRole(), user.getUserType());
     }
 }

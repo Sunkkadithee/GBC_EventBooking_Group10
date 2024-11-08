@@ -23,15 +23,5 @@ public interface RoomClient {
     @RequestMapping(method=RequestMethod.PUT, value = "/api/roomBooking/updateAvailability")
     boolean updateRoomAvailabilityBasedOnBookingEnd(@RequestParam Long roomId, @RequestParam LocalDateTime bookingEnd);
 
-//    @RequestMapping(method = RequestMethod.GET, value = "/api/booking/getBookingEnd")
-//    LocalDateTime getBookingEndForRoom(@RequestParam Long roomId);
-
-//    @GetMapping("/api/romBooking/booked")
-//    List<Room> getBookedRooms();
-
-
-//    @PutMapping("/api/roomBooking/constantUpdate")
-//    void updateRoomAvailability(@RequestParam Long id, @RequestParam LocalDateTime bookingEnd);
-
 
 }

@@ -21,9 +21,7 @@ services:
     volumes:
       - ./data/mongo/bookings:/data/db  # the database will oersist data here on the host machine
       - ./init/mongo/docker-entrypoint-initdb.d/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro # Initialize MongoDB with data from this script.
-    container_name: mongodb_booking
-    #restart: unless-stopped
-    #command: mongod --auth
+    container_name: mongodb
     networks:
       - spring
 

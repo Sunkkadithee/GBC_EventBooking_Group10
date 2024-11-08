@@ -3,6 +3,7 @@ package ca.gbc.roomservice.controller;
 
 import ca.gbc.roomservice.dto.RoomRequest;
 import ca.gbc.roomservice.dto.RoomResponse;
+import ca.gbc.roomservice.model.Room;
 import ca.gbc.roomservice.service.RoomAvailabilityService;
 import ca.gbc.roomservice.service.RoomService;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +25,6 @@ public class RoomController {
     private final RoomService roomService;
     private final RoomAvailabilityService roomAvailabilityService;
 
-
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public boolean isRoomAvailable(Long id) { return roomService.isRoomAvailable(id);}
@@ -37,6 +37,7 @@ public class RoomController {
     }
 
 
+    // Endpoint to update room availability based on the booking end time
     @PutMapping("/updateAvailability")
     @ResponseStatus(HttpStatus.OK)
     public boolean updateRoomAvailabilityBasedOnBookingEnd(
@@ -50,8 +51,10 @@ public class RoomController {
 
     @PutMapping("/api/roomBooking/constantUpdate")
     public void updateRoomAvailability(@RequestParam Long id, @RequestParam LocalDateTime bookingEnd) {
-        roomAvailabilityService.checkAndUpdateRoomAvailability();
+        roomAvailabilityService.checkAndUpdateRoomAvailability(); // Manually trigger the availability check
     }
+
+
 
     @PostMapping("/createRoomAdmin")
     @ResponseStatus(HttpStatus.CREATED)
