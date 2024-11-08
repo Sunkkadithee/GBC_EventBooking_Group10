@@ -58,7 +58,21 @@ services:
     networks:
       - spring
 
+  approval-service:
+    image: approval-service
 
+    ports:
+      - "8085:8086"
+    build:
+      context: ./approval-service       # The directory where the Dockerfile resides
+      dockerfile: ./Dockerfile    # Specify the Dockerfile for use to build image
+    container_name: approval-service
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    depends_on:
+      - postgres
+    networks:
+      - spring
 
 
   postgres:
