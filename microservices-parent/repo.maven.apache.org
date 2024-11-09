@@ -1,0 +1,30 @@
+   > Could not download junit-jupiter-engine-5.10.5.jar (org.junit.jupiter:junit-jupiter-engine:5.10.5)                                                                                     
+      > Could not get resource 'https://repo.maven.apache.org/maven2/org/junit/jupiter/junit-jupiter-engine/5.10.5/junit-jupiter-engine-5.10.5.jar'.                                        
+         > Could not GET 'https://repo.maven.apache.org/maven2/org/junit/jupiter/junit-jupiter-engine/5.10.5/junit-jupiter-engine-5.10.5.jar'.                                              
+            > repo.maven.apache.org                                                           
+   > Could not download junit-platform-engine-1.10.5.jar (org.junit.platform:junit-platform-engine:1.10.5)                                                                                  
+      > Could not get resource 'https://repo.maven.apache.org/maven2/org/junit/platform/junit-platform-engine/1.10.5/junit-platform-engine-1.10.5.jar'.                                     
+         > Could not GET 'https://repo.maven.apache.org/maven2/org/junit/platform/junit-platform-engine/1.10.5/junit-platform-engine-1.10.5.jar'.                                           
+            > repo.maven.apache.org                                                           
+   > Could not download HdrHistogram-2.2.2.jar (org.hdrhistogram:HdrHistogram:2.2.2)          
+      > Could not get resource 'https://repo.maven.apache.org/maven2/org/hdrhistogram/HdrHistogram/2.2.2/HdrHistogram-2.2.2.jar'.                                                           
+         > Could not GET 'https://repo.maven.apache.org/maven2/org/hdrhistogram/HdrHistogram/2.2.2/HdrHistogram-2.2.2.jar'.                                                                 
+            > repo.maven.apache.org                                                           
+   > Could not download LatencyUtils-2.0.3.jar (org.latencyutils:LatencyUtils:2.0.3)          
+      > Could not get resource 'https://repo.maven.apache.org/maven2/org/latencyutils/LatencyUtils/2.0.3/LatencyUtils-2.0.3.jar'.                                                           
+         > Could not GET 'https://repo.maven.apache.org/maven2/org/latencyutils/LatencyUtils/2.0.3/LatencyUtils-2.0.3.jar'.                                                                 
+            > repo.maven.apache.org                                                           
+   > Could not download objenesis-3.3.jar (org.objenesis:objenesis:3.3)                       
+      > Could not get resource 'https://repo.maven.apache.org/maven2/org/objenesis/objenesis/3.3/objenesis-3.3.jar'.                                                                        
+         > Could not GET 'https://repo.maven.apache.org/maven2/org/objenesis/objenesis/3.3/objenesis-3.3.jar'.                                                                              
+            > repo.maven.apache.org                                                           
+   > Could not download commons-codec-1.16.1.jar (commons-codec:commons-codec:1.16.1)         
+      > Could not get resource 'https://repo.maven.apache.org/maven2/commons-codec/commons-codec/1.16.1/commons-codec-1.16.1.jar'.                                                          
+         > Could not GET 'https://repo.maven.apache.org/maven2/commons-codec/commons-codec/1.16.1/commons-codec-1.16.1.jar'.                                                                
+            > repo.maven.apache.org                                                           
+                                                                                              
+* Try:                                                                                        
+> Run with --stacktrace option to get the stack trace.                                        
+> Run with --info or --debug option to get more log output.                                   
+> Run with --scan to get full insights.                                                       
+> Get more help at https://help.gradle.org.                                                   

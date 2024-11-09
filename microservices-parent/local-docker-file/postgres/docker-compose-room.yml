@@ -1,0 +1,40 @@
+## docker-compose -p posrgres-room -f docker-compose-room.yml up -d
+version: '3.9'
+
+services:
+
+  postgres-room:
+    image: postgres:14  # Specify a PostgreSQL version for consistency
+    container_name: postgres-room
+    ports:
+      - "5435:5432"
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=roomdb  # Optional: Specify a default database
+    volumes:
+      - postgres_data_room:/var/lib/postgresql/data
+      - ./init/room/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - spring
+
+  pgadmin-room:
+    image: dpage/pgadmin4
+    container_name: pgadmin-room
+    ports:
+      - "8887:80"
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=user@domain.ca
+      - PGADMIN_DEFAULT_PASSWORD=password
+    volumes:
+      - pgadmin_data_room:/var/lib/pgadmin
+    networks:
+      - spring
+
+volumes:
+  postgres_data_room:
+  pgadmin_data_room:
+
+networks:
+  spring:
+    driver: bridge
