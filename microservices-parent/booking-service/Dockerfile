@@ -13,7 +13,7 @@ WORKDIR /home/gradle/src
 RUN gradle build -x test
 
 #------------------
-#   Package Stage
+#   Package STAGE
 #------------------
 FROM openjdk:23-jdk
 
@@ -21,16 +21,14 @@ FROM openjdk:23-jdk
 RUN mkdir /app
 
 # Copy the built JAR file from the builder stage
-#COPY --from=builder /home/gradle/src/build/libs/*.jar /app/booking-service.jar
-COPY --from=builder /home/gradle/src/build/libs/booking-service-0.0.1-SNAPSHOT.jar /app/
-# COPY --from=builder /home/gradle/src/build/libs/booking-service-0.0.1-SNAPSHOT-plain.jar /app/
+COPY --from=builder /home/gradle/src/build/libs/*.jar /app/booking-service.jar
 
 # Set environment variables
 ENV MONGO_DB_USERNAME=admin \
     MONGO_DB_PASSWORD=password
 
 # Expose the application port
-EXPOSE 8083
+EXPOSE 8084
 
 # Define the entry point for the container
-ENTRYPOINT ["java", "-jar", "/app/booking-service-0.0.1-SNAPSHOT.jar"]
+ENTRYPOINT ["java", "-jar", "/app/booking-service.jar"]

@@ -27,52 +27,38 @@ services:
       - spring
 
 
-  # room-service:
-  #     image: room-service
+  room-service:
+      image: room-service
 
-  #     ports:
-  #       - "8086:8086"
-  #     build:
-  #       context: ./room-service       # The directory where the Dockerfile resides
-  #       dockerfile: ./Dockerfile    # Specify the Dockerfile for use to build image
-  #     container_name: room-service
-  #     environment:
-  #       SPRING_PROFILES_ACTIVE: docker
-  #     depends_on:
-  #       - postgres
-  #     networks:
-  #       - spring
+      ports:
+        - "8086:8086"
+      build:
+        context: ./room-service       # The directory where the Dockerfile resides
+        dockerfile: ./Dockerfile    # Specify the Dockerfile for use to build image
+      container_name: room-service
+      environment:
+        SPRING_PROFILES_ACTIVE: docker
+      depends_on:
+        - postgres
+      networks:
+        - spring
 
-  # event-service:
-  #   image: event-service
-  #   ports:
-  #     - "8089:8084"
-  #   build:
-  #     context: ./event-service
-  #     dockerfile: ./Dockerfile
-  #   container_name: event-service
-  #   environment:
-  #     SPRING_PROFILES_ACTIVE: docker
-  #   depends_on:
-  #     - mongodb
-  #   networks:
-  #     - spring
+  event-service:
+    image: event-service
+    ports:
+      - "8089:8084"
+    build:
+      context: ./event-service
+      dockerfile: ./Dockerfile
+    container_name: event-service
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    depends_on:
+      - mongodb
+    networks:
+      - spring
 
-  # approval-service:
-  #   image: approval-service
 
-  #   ports:
-  #     - "8085:8086"
-  #   build:
-  #     context: ./approval-service       # The directory where the Dockerfile resides
-  #     dockerfile: ./Dockerfile    # Specify the Dockerfile for use to build image
-  #   container_name: approval-service
-  #   environment:
-  #     SPRING_PROFILES_ACTIVE: docker
-  #   depends_on:
-  #     - postgres
-  #   networks:
-  #     - spring
 
 
   postgres:
@@ -89,16 +75,16 @@ services:
     networks:
       - spring
 
-  # pgadmin:
-  #   image: dpage/pgadmin4
-  #   container_name: pgadmin-room
-  #   ports:
-  #     - "8887:80"
-  #   environment:
-  #     - PGADMIN_DEFAULT_EMAIL=user@domain.ca
-  #     - PGADMIN_DEFAULT_PASSWORD=password
-  #   networks:
-  #     - spring
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin-room
+    ports:
+      - "8887:80"
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=user@domain.ca
+      - PGADMIN_DEFAULT_PASSWORD=password
+    networks:
+      - spring
 
   mongodb:
     image: mongo:latest
@@ -116,19 +102,19 @@ services:
     networks:
       - spring
 
-  # mongo-express:
-  #   image: mongo-express
-  #   ports:
-  #     - "8083:8081"
-  #   environment:
-  #     - ME_CONFIG_MONGODB_ADMINUSERNAME=admin
-  #     - ME_CONFIG_MONGODB_ADMINPASSWORD=password
-  #     - ME_CONFIG_MONGODB_SERVER=mongodb
-  #   container_name: mongo-express_booking
-  #   depends_on:
-  #     - mongodb
-  #   networks:
-  #     - spring
+  mongo-express:
+    image: mongo-express
+    ports:
+      - "8083:8081"
+    environment:
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=admin
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=password
+      - ME_CONFIG_MONGODB_SERVER=mongodb
+    container_name: mongo-express_booking
+    depends_on:
+      - mongodb
+    networks:
+      - spring
 
 
 #optional volumes section persisting data

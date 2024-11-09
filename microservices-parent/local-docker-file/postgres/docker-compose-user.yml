@@ -3,7 +3,7 @@
 version: '3.9'
 
 services:
-  postgres-user:
+  postgres:
     image: postgres
     ports:
       - "5436:5432"
@@ -17,7 +17,7 @@ services:
       - ./init/user/init.sql:/docker-entrypoint-initdb.d/init.sql
 
 
-  pgadmin-user:
+  pgadmin:
     image: dpage/pgadmin4
     ports:
       - "8886:80"

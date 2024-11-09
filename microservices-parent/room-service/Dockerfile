@@ -2,7 +2,7 @@
 # Build Stage
 #------------
 # Build Stage
-FROM gradle:8-jdk23-alpine AS builder
+FROM gradle:8-jdk22-alpine AS builder
 
 COPY --chown=gradle:gradle . /home/gradle/src
 WORKDIR /home/gradle/src
